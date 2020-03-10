@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"log"
+	"math"
 	"time"
 )
 
@@ -34,25 +35,39 @@ func checkCertValidity(address string) {
 	}
 
 	x509 := conn.ConnectionState().PeerCertificates[0]
-	fmt.Printf("Expiration Date: %v", x509.NotAfter)
 
-	expirationDate := x509.NotAfter
+	printValidityInfo(x509.NotAfter)
+
+	defer conn.Close()
+}
+
+func printValidityInfo(expirationDate time.Time) {
+
 	fifteenDaysBefore := expirationDate.AddDate(0, 0, -15)
 	thirtyDaysBefore := expirationDate.AddDate(0, 0, -30)
 
 	now := time.Now()
+	timeLeft := expirationDate.Sub(now)
+	days := math.Ceil(timeLeft.Hours() / 24)
+
+	if now.After(expirationDate) {
+		fmt.Printf("\033[01;31mCRITICAL: \033[0m")
+		fmt.Printf("Your server's SSL certificate has already expired on %v\n", expirationDate)
+		return
+	}
 
 	if now.After(fifteenDaysBefore) {
-		fmt.Printf("\033[01;31m CRITICAL \033[0m\n")
+		fmt.Printf("\033[01;31mCRITICAL: \033[0m")
+		fmt.Printf("Your server's SSL certificate is valid until %v. It will expire in %v days.\n", expirationDate, days)
 		return
 	}
 
 	if now.After(thirtyDaysBefore) {
-		fmt.Printf("\033[01;33m WARNING \033[0m\n")
+		fmt.Printf("\033[01;33mWARNING: \033[0m")
+		fmt.Printf("Your server's SSL certificate is valid until %v. It will expire in %v days.\n", expirationDate, days)
 		return
 	}
 
-	fmt.Printf("\033[01;32m INFO \033[0m\n")
-
-	defer conn.Close()
+	fmt.Printf("\033[01;32mINFO: \033[0m")
+	fmt.Printf("Your server's SSL certificate is valid until %v. It will expire in %v days.\n", expirationDate, days)
 }
