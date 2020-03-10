@@ -5,7 +5,7 @@ This is a small golang program that check the expiration date of SSL certificate
 
 ### How to run the program
 
-The program should run on Linux system. Please install Go on your environment. [Install the Go tools](https://golang.org/doc/install)
+The program should run on **Linux** system. Please install Go on your environment. [Install the Go tools](https://golang.org/doc/install)
 
 Run the code with command:
 
