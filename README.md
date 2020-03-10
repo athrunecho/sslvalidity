@@ -11,7 +11,7 @@ Run the code with command:
 
  	$ go run ssl.go
 
-If you want to build a executable file:
+If you want to build an executable file:
 
  	$ go build ssl.go
 
